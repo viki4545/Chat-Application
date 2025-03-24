@@ -14,12 +14,12 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app);
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: "https://chat-applicatio.netlify.app", credentials: true }));
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL,
-        methods: ["GET", "POST"]
+        origin: "https://chat-applicatio.netlify.app",
+        credentials: true
     }
 });
 
