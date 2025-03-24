@@ -1,9 +1,11 @@
 import express from "express";
-import { getAllUserController, getMessages } from "../controller/chatController.js";
+import { getAllUserController, getMessages, markMessagesAsReadController, sendMessage } from "../controller/chatController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 const chatRouter = express.Router();
 
-chatRouter.get('/users',authMiddleware, getAllUserController);
-chatRouter.get('/messages/:userId/:recipientId',authMiddleware, getMessages);
+chatRouter.get('/users', authMiddleware, getAllUserController);
+chatRouter.post("/send", authMiddleware, sendMessage);
+chatRouter.get("/:receiverId", authMiddleware, getMessages);
+chatRouter.post("/markAsRead", authMiddleware, markMessagesAsReadController);
 
-export default  chatRouter;
+export default  chatRouter; 

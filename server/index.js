@@ -1,49 +1,36 @@
 import express from "express"
-// import http from "http"
-// import { Server } from "socket.io";
+import http from "http"
+import { Server } from "socket.io";
 import cors from "cors"
+import dotenv from "dotenv";
 import {connectDB} from "./config/db.js"
 import authRouter from "./router/authRouter.js";
 import chatRouter from "./router/chatRouter.js";
+import initializeSocket from "./socket/socket.js";
+import path from "path";
 
-const app = express();
-// const server = http.createServer(app);
-// const io = new Server(server);
-
+dotenv.config();
 connectDB();
 
-app.use(cors({
-  origin: "http://localhost:3000"
-}));
+const app = express();
+const server = http.createServer(app);
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ["GET", "POST"]
+    }
+});
 
 app.use(express.json());
-
-
+app.use(express.static(path.resolve("./public")))
 
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 
-// let users = [];
+initializeSocket(io);
 
-// io.on('connection', (socket) => {
-//   console.log('A user connected');
-//   socket.on('disconnect', () => {
-//     console.log('User disconnected');
-//     users = users.filter((user) => user.socketId !== socket.id);
-//   });
-
-//   socket.on('join', (userId) => {
-//     users.push({ userId, socketId: socket.id });
-//   });
-
-//   socket.on('send_message', (message) => {
-//     const recipient = users.find((user) => user.userId === message.receiver);
-//     if (recipient) {
-//       io.to(recipient.socketId).emit('receive_message', message);
-//     }
-//   });
-// });
-
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

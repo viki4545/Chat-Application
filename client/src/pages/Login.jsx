@@ -7,10 +7,7 @@ import { loginUserThunk } from "../redux/features/authSlice";
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
   const { loading, error, status } = useSelector((state) => state.auth);
-
-  
 
   const loginFormik = useFormik({
     initialValues: {
@@ -19,71 +16,94 @@ const Register = () => {
     },
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Invalid email format")
         .required("Email is required"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
     }),
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setFieldError }) => {
       const { email, password } = values;
       const action = await dispatch(loginUserThunk({ email, password }));
+    
       if (action.meta.requestStatus === "fulfilled") {
         localStorage.setItem("token", action.payload.token);
-        navigate("/message"); 
+        localStorage.setItem("userId", action.payload.user._id);
+        navigate("/message");
+      } else if (action.meta.requestStatus === "rejected") {
+        const errorMessage = action.payload?.message || "Login failed. Please try again.";
+        setFieldError("general", errorMessage);
       }
     },
   });
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center">
-      <div className="w-1/2 flex flex-col justify-center items-center gap-2 px-4 py-2 bg-[#F8F8F8] rounded-md">
-        <h1 className="font-bold">Login</h1>
-        <form onSubmit={loginFormik.handleSubmit}>
+    <div className="w-full h-screen flex items-center justify-center bg-[#012647] p-4">
+      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-[#012647] text-center mb-4">
+          Login to Your Account
+        </h1>
+
+        <form onSubmit={loginFormik.handleSubmit} className="space-y-4">
           <div>
-            <label>Email:</label>
+            <label className="block text-sm font-medium text-[#012647] mb-1">
+              Email:
+            </label>
             <input
               type="email"
               name="email"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#012647]"
               onChange={loginFormik.handleChange}
               onBlur={loginFormik.handleBlur}
               value={loginFormik.values.email}
             />
             {loginFormik.touched.email && loginFormik.errors.email && (
-              <div className="text-red-500">{loginFormik.errors.email}</div>
+              <p className="text-red-500 text-xs mt-1">
+                {loginFormik.errors.email}
+              </p>
             )}
           </div>
 
           <div>
-            <label>Password:</label>
+            <label className="block text-sm font-medium text-[#012647] mb-1">
+              Password:
+            </label>
             <input
               type="password"
               name="password"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#012647]"
               onChange={loginFormik.handleChange}
               onBlur={loginFormik.handleBlur}
               value={loginFormik.values.password}
             />
             {loginFormik.touched.password && loginFormik.errors.password && (
-              <div className="text-red-500">{loginFormik.errors.password}</div>
+              <p className="text-red-500 text-xs mt-1">
+                {loginFormik.errors.password}
+              </p>
             )}
           </div>
 
-          <button type="submit" className="py-2 px-4 bg-black rounded-md text-white">
-            Login
+          <button
+            type="submit"
+            className="w-full py-2 px-4 bg-[#75000e] text-white font-semibold rounded-md hover:bg-[#5b000c] transition duration-200"
+            disabled={status === "loading"}
+          >
+            {status === "loading" ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <h3>
-          Don't have an account? <a href="/register">Register</a>
-        </h3>
-      </div>
+        {loginFormik.errors.general && (
+  <p className="text-red-500 text-sm text-center mt-2">
+    {loginFormik.errors.general}
+  </p>
+)}
 
-      {status === "loading" && (
-        <div className="text-blue-500 mt-2">Login...</div>
-      )}
-      {status === "failed" && (
-        <div className="text-red-500 mt-2">Login failed. Please try again.</div>
-      )}
+
+        <p className="text-center text-sm text-[#012647] mt-4">
+          Don't have an account?{" "}
+          <a href="/register" className="text-[#75000e] font-semibold hover:underline">
+            Register
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
