@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
+// const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://chat-application-m8p7.onrender.com";
 
 export const loginUserThunk = createAsyncThunk(
   "auth/loginUserThunk",

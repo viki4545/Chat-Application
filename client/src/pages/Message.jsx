@@ -8,7 +8,9 @@ import { io } from "socket.io-client";
 import moment from "moment";
 
 const Message = () => {
-  const socket = useMemo(() => io("http://localhost:5000"), []);
+  // const socket = useMemo(() => io("http://localhost:5000"), []);
+  const socket = useMemo(() => io("https://chat-application-m8p7.onrender.com"), []);
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
